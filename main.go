@@ -55,17 +55,17 @@ func main() {
 			"status": "healthy",
 		})
 	})
-	router.GET("/getpods", func(c *gin.Context) {
+	// router.GET("/getpods", func(c *gin.Context) {
 
-		datas := clusterinfo.GetPodListInfo(clientset)
-		clusterinfo.SavePodInfoList(datas)
-		c.JSON(http.StatusOK, gin.H{
-			"datas": "Sending completed",
-		})
+	// 	datas := clusterinfo.GetPodListInfo(clientset)
+	// 	clusterinfo.SavePodInfoList(datas)
+	// 	c.JSON(http.StatusOK, gin.H{
+	// 		"datas": "Sending completed",
+	// 	})
 
-		// c.Redirect(http.StatusMovedPermanently, "/results")
+	// 	// c.Redirect(http.StatusMovedPermanently, "/results")
 
-	})
+	// })
 	router.GET("/getpod", func(c *gin.Context) {
 
 		namespace := c.Query("namespace")
