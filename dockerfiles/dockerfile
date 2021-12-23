@@ -1,1 +1,0 @@
-FROM golang:rc-alpine3.15

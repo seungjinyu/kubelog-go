@@ -1,0 +1,11 @@
+FROM  golang:1.17.2-bullseye
+
+WORKDIR /usr/local/app
+
+COPY . .
+
+RUN go mod download 
+
+RUN cp -av envs/in.cluster.env ./.env
+
+CMD [ "go", "run","main.go" ]

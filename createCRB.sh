@@ -1,0 +1,1 @@
+kubectl create clusterrolebinding default-view --clusterrole=view --serviceaccount=logger:default
