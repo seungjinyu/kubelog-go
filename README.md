@@ -15,3 +15,9 @@ you just have to build the dockerfile.out file by docker-compose.yaml
 build the image by dockerfile.in 
 
 and configure the service account to access the pods information
+
+# ENV files 
+
+env file is located in envs 
+
+in there you configure every environment variable but currently there are just a few.
