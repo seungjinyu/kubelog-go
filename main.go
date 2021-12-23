@@ -1,8 +1,9 @@
 package main
 
 import (
-	"kubelog_go/clusterinfo"
 	"net/http"
+
+	"github.com/seungjinyu/kubelog_go/clusterinfo"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -33,7 +34,7 @@ func main() {
 	router.GET("/getpods", func(c *gin.Context) {
 
 		datas := clusterinfo.GetPodListInfo()
-		clusterinfo.SavePodInfo(datas)
+		clusterinfo.SavePodInfoList(datas)
 		c.JSON(http.StatusOK, gin.H{
 			"datas": "Sending completed",
 		})

@@ -5,10 +5,11 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"kubelog_go/models"
 	"log"
 	"os"
 	"strconv"
+
+	"github.com/seungjinyu/kubelog_go/models"
 
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
