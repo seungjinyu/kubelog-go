@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/seungjinyu/kubelog_go/clusterinfo"
@@ -73,11 +74,13 @@ func main() {
 		// clusterinfo.SavePodInfo(datas)
 		loc, _ := time.LoadLocation("UTC")
 
+		podlog := strings.Split(datas.PodLog, "\n")
+
 		c.JSON(http.StatusOK, gin.H{
 			"Current Time": time.Now(),
 			"UTC Time":     time.Now().In(loc),
 			"Pod Name":     datas.PodName,
-			"Pod Log":      datas.PodLog,
+			"Pod Log":      podlog,
 		})
 
 		// c.Redirect(http.StatusMovedPermanently, "/results")
