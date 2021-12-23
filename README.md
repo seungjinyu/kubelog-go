@@ -9,3 +9,9 @@ It`s simple, just choose the environment you are planning to use and configure t
 1. outside the cluster
 
 you just have to build the dockerfile.out file by docker-compose.yaml 
+
+2. inside the cluster 
+
+build the image by dockerfile.in 
+
+and configure the service account to access the pods information
