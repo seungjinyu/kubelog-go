@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/seungjinyu/kubelog_go/clusterinfo"
+	"github.com/seungjinyu/kubelog-go/clusterinfo"
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/gin-gonic/gin"

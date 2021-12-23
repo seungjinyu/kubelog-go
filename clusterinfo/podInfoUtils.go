@@ -9,7 +9,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/seungjinyu/kubelog_go/models"
+	"github.com/seungjinyu/kubelog-go/models"
 
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
