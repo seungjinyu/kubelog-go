@@ -7,7 +7,7 @@ import (
 	"io"
 	"log"
 	"os"
-	"strconv"
+	"strings"
 
 	"github.com/seungjinyu/kubelog_go/models"
 
@@ -16,13 +16,21 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
-func GetPodListInfo() models.PodInfoList {
-	clientset, err := CreateOutClientSet()
+func GetPodListInfo(clientset *kubernetes.Clientset) models.PodInfoList {
+
+	podlist := givePodList(clientset)
+	result := extractDataFromPodList(podlist, clientset)
+
+	return result
+}
+
+func GetPodInfo(clientset *kubernetes.Clientset, namespace, requestPodName string) models.PodInfo {
+
+	podInfo, err := givePod(clientset, namespace, requestPodName)
 	if err != nil {
 		panic(err)
 	}
-	podlist := givePodList(clientset)
-	result := extractDataFromPodList(podlist, clientset)
+	result := extractDataFromPod(podInfo, clientset)
 
 	return result
 }
@@ -42,9 +50,23 @@ func givePodList(clientset *kubernetes.Clientset) []v1.Pod {
 
 }
 
-func givePod(clientset *kubernetes.Clientset) []v1.Pod {
+func givePod(clientset *kubernetes.Clientset, namespace, requestPodName string) (v1.Pod, error) {
 
-	return nil
+	if namespace == "" {
+		namespace = "default"
+	}
+	pods, err := clientset.CoreV1().Pods(namespace).List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		panic(err)
+	}
+
+	for _, v := range pods.Items {
+		if strings.Contains(v.Name, requestPodName) {
+			return v, nil
+		}
+	}
+
+	return v1.Pod{}, err
 }
 
 // Here is what we came up with eventually using client-go library:
@@ -84,11 +106,24 @@ func extractDataFromPodList(pl []v1.Pod, clientset *kubernetes.Clientset) models
 	}
 	return tmp
 }
+
+func extractDataFromPod(pi v1.Pod, clientset *kubernetes.Clientset) models.PodInfo {
+
+	tmp := models.PodInfo{
+		PodName:   pi.GetName(),
+		PodLog:    getPodLogs(pi, clientset),
+		PodStatus: pi.Status.Message,
+	}
+
+	fmt.Println(tmp.PodLog, tmp.PodName)
+	return tmp
+
+}
 func SavePodInfoList(pil models.PodInfoList) {
 
-	for i, v := range pil.InfoList {
+	for _, v := range pil.InfoList {
 
-		fileName := "./logs/log" + strconv.Itoa(i)
+		fileName := "./logs/" + v.PodName + ".log"
 		tmp, err := os.Create(fileName)
 		if err != nil {
 			log.Println(err)
@@ -103,7 +138,7 @@ func SavePodInfoList(pil models.PodInfoList) {
 
 func SavePodInfo(pi models.PodInfo) {
 
-	fileName := "./logs/log"
+	fileName := "./logs/" + pi.PodName + "log"
 	tmp, err := os.Create(fileName)
 	if err != nil {
 		log.Println(err)
