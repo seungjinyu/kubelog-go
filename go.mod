@@ -1,4 +1,4 @@
-module kubelog_go
+module github.com/seungjinyu/kubelog_go
 
 go 1.17
 
