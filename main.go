@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -15,6 +16,8 @@ import (
 )
 
 func main() {
+
+	fmt.Println("VERSION 1.0.2")
 
 	err := godotenv.Load(".env")
 	if err != nil {
