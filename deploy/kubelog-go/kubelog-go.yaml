@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kubelog-go
+  namespace: logger
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kubelog-go
+  template:
+    metadata:
+      labels:
+        app: kubelog-go
+    spec:
+      containers:
+        - name: kubelog-go
+          image: kubelog-go
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+      imagePullSecrets:
+        - name: registry-secret
