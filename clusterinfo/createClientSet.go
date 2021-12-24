@@ -11,7 +11,12 @@ import (
 	"k8s.io/client-go/util/homedir"
 )
 
-func CreateInClientSet() (*kubernetes.Clientset, error) {
+type ClientSetInstance struct {
+	Clientset *kubernetes.Clientset
+	Appenv    string
+}
+
+func (c *ClientSetInstance) CreateInClientSet() error {
 	config, err := rest.InClusterConfig()
 	if err != nil {
 		panic(err.Error())
@@ -20,10 +25,12 @@ func CreateInClientSet() (*kubernetes.Clientset, error) {
 	if err != nil {
 		panic(err.Error())
 	}
-	return clientset, err
+	c.Clientset = clientset
+
+	return err
 }
 
-func CreateOutClientSet() (*kubernetes.Clientset, error) {
+func (c *ClientSetInstance) CreateOutClientSet() error {
 
 	var kubeconfig *string
 
@@ -46,10 +53,6 @@ func CreateOutClientSet() (*kubernetes.Clientset, error) {
 	if err != nil {
 		panic(err.Error())
 	}
-
-	return clientset, err
-}
-
-func CreateInClusterSet() *kubernetes.Clientset {
-	return nil
+	c.Clientset = clientset
+	return err
 }

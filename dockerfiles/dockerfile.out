@@ -1,11 +1,19 @@
-FROM  golang:1.17.2-bullseye
+FROM  golang:1.17.2-bullseye AS build
 
 WORKDIR /usr/local/app
 
-COPY . /usr/local/app/
+COPY . .
 
 RUN go mod download 
 
 RUN cp -av envs/out.cluster.env ./.env
 
-CMD [ "go", "run","main.go" ]
+RUN go build -o kubelog-go .
+
+FROM golang:rc-alpine3.15 AS runtime 
+
+WORKDIR /usr/local/app
+
+COPY --from=build /usr/local/app/kubelog-go .
+
+CMD ["/kubelog-go"]

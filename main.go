@@ -5,15 +5,16 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strings"
-	"time"
 
 	"github.com/seungjinyu/kubelog-go/clusterinfo"
-	"k8s.io/client-go/kubernetes"
+	"github.com/seungjinyu/kubelog-go/middleware"
+	"github.com/seungjinyu/kubelog-go/services"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
+
+var csi *clusterinfo.ClientSetInstance
 
 func main() {
 
@@ -23,72 +24,42 @@ func main() {
 	if err != nil {
 		log.Println(err.Error())
 	}
-	// appenv := "IN"
 	appenv := os.Getenv("APP_ENV")
-	var clientset *kubernetes.Clientset
 
 	if appenv != "OUT" {
-		clientset, err = clusterinfo.CreateInClientSet()
+		err = csi.CreateInClientSet()
 		if err != nil {
 			log.Println(err.Error())
 		}
+
 	} else {
-		clientset, err = clusterinfo.CreateOutClientSet()
+		err = csi.CreateInClientSet()
 		if err != nil {
 			log.Println(err.Error())
 		}
 	}
 
-	router := gin.Default()
+	r := gin.Default()
 
-	router.GET("/", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"Main": "Page",
-		})
+	v1 := r.Group("v1")
+	v1.Use(middleware.Authenticate)
+	{
+		v1.GET("/v1welcome", services.V1welcome)
+	}
+
+	r.GET("/", services.V1welcome)
+	r.GET("/welcome", services.Welcome)
+	r.GET("/health", services.Healthy)
+	r.GET("/getpods", getpods)
+
+	r.Run(":" + os.Getenv("PORT"))
+
+}
+
+func getpods(c *gin.Context) {
+	datas := clusterinfo.GetPodListInfo(csi.Clientset)
+	clusterinfo.SavePodInfoList(datas)
+	c.JSON(http.StatusOK, gin.H{
+		"datas": "Sending completed",
 	})
-
-	router.GET("/welcome", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"greetings": "welcome",
-		})
-	})
-
-	router.GET("/health", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"status": "healthy",
-		})
-	})
-	// router.GET("/getpods", func(c *gin.Context) {
-
-	// 	datas := clusterinfo.GetPodListInfo(clientset)
-	// 	clusterinfo.SavePodInfoList(datas)
-	// 	c.JSON(http.StatusOK, gin.H{
-	// 		"datas": "Sending completed",
-	// 	})
-
-	// 	// c.Redirect(http.StatusMovedPermanently, "/results")
-
-	// })
-	router.GET("/getpod", func(c *gin.Context) {
-
-		namespace := c.Query("namespace")
-		requestPodName := c.Query("podname")
-		datas := clusterinfo.GetPodInfo(clientset, namespace, requestPodName)
-		// clusterinfo.SavePodInfo(datas)
-		loc, _ := time.LoadLocation("UTC")
-
-		podlog := strings.Split(datas.PodLog, "\n")
-
-		c.JSON(http.StatusOK, gin.H{
-			"Current Time": time.Now(),
-			"UTC Time":     time.Now().In(loc),
-			"Pod Name":     datas.PodName,
-			"Pod Log":      podlog,
-		})
-
-		// c.Redirect(http.StatusMovedPermanently, "/results")
-
-	})
-	router.Run(":" + os.Getenv("PORT"))
-
 }
