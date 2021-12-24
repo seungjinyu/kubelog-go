@@ -6,6 +6,8 @@ COPY . /usr/local/app/
 
 RUN go mod download 
 
+RUN go build -o kubelog-go .
+
 RUN cp -av envs/in.cluster.env ./.env
 
 CMD [ "go", "run","main.go" ]

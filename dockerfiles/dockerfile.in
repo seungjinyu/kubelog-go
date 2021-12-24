@@ -16,4 +16,4 @@ WORKDIR /usr/local/app
 
 COPY --from=build /usr/local/app/kubelog-go .
 
-CMD ["/kubelog-go"]
+CMD ["/usr/local/app/kubelog-go"]

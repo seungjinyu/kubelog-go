@@ -14,13 +14,14 @@ import (
 	"github.com/joho/godotenv"
 )
 
-var csi *clusterinfo.ClientSetInstance
+var csi clusterinfo.ClientSetInstance
 
 func main() {
 
 	fmt.Println("VERSION 1.0.2")
 
 	err := godotenv.Load(".env")
+
 	if err != nil {
 		log.Println(err.Error())
 	}
@@ -33,7 +34,7 @@ func main() {
 		}
 
 	} else {
-		err = csi.CreateInClientSet()
+		err = csi.CreateOutClientSet()
 		if err != nil {
 			log.Println(err.Error())
 		}
@@ -45,12 +46,12 @@ func main() {
 	v1.Use(middleware.Authenticate)
 	{
 		v1.GET("/v1welcome", services.V1welcome)
+		v1.POST("/getpods", getpods)
 	}
 
 	r.GET("/", services.V1welcome)
 	r.GET("/welcome", services.Welcome)
 	r.GET("/health", services.Healthy)
-	r.GET("/getpods", getpods)
 
 	r.Run(":" + os.Getenv("PORT"))
 
