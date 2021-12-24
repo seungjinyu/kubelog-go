@@ -2,6 +2,10 @@
 
 A simple web application for getting logs from the pods
 
+Only for developers who want to see the pods logs without credentials 
+
+Developed for application developers.
+
 # HOW TO USE IT
 
 It`s simple, just choose the environment you are planning to use and configure the env file
