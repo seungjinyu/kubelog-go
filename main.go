@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/seungjinyu/kubelog-go/auth"
 	"github.com/seungjinyu/kubelog-go/clusterinfo"
 	"github.com/seungjinyu/kubelog-go/middleware"
 	"github.com/seungjinyu/kubelog-go/services"
@@ -52,6 +53,7 @@ func main() {
 	r.GET("/", services.V1welcome)
 	r.GET("/welcome", services.Welcome)
 	r.GET("/health", services.Healthy)
+	r.POST("/verifykeytest", auth.VerifyKey)
 
 	r.Run(":" + os.Getenv("PORT"))
 

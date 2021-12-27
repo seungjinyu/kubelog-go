@@ -4,7 +4,9 @@ go 1.17
 
 require (
 	github.com/gin-gonic/gin v1.7.7
+	github.com/google/go-querystring v1.1.0
 	github.com/joho/godotenv v1.4.0
+	github.com/monaco-io/request v1.0.15
 	k8s.io/api v0.23.1
 	k8s.io/apimachinery v0.23.1
 	k8s.io/client-go v0.23.1
