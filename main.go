@@ -81,10 +81,13 @@ type rbody struct {
 func getpod(c *gin.Context) {
 
 	var rbodyi rbody
+	body := c.Request.Body
 
-	err := json.NewDecoder(c.Request.Body).Decode(&rbodyi)
+	err := json.NewDecoder(body).Decode(&rbodyi)
+	defer body.Close()
+
 	if err != nil {
-		log.Panic(err)
+		log.Println(err)
 	}
 
 	datas := clusterinfo.GetPodInfo(csi.Clientset, rbodyi.Namespace, rbodyi.PodName)
