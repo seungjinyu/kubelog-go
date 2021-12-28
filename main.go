@@ -13,6 +13,7 @@ import (
 	"github.com/seungjinyu/kubelog-go/clusterinfo"
 	"github.com/seungjinyu/kubelog-go/middleware"
 	"github.com/seungjinyu/kubelog-go/services"
+	"k8s.io/client-go/kubernetes"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -32,6 +33,7 @@ func main() {
 	appenv := os.Getenv("APP_ENV")
 
 	if appenv != "OUT" {
+
 		err = csi.CreateInClientSet()
 		if err != nil {
 			log.Println(err.Error())
@@ -47,12 +49,12 @@ func main() {
 	r := gin.Default()
 
 	v1 := r.Group("v1")
+	v1.Use(middleware.ClientSet(csi.Clientset))
 	v1.Use(middleware.Authenticate)
 	{
 		v1.GET("/v1welcome", services.V1welcome)
 		v1.POST("/getpods", getpods)
 		v1.POST("/getpod", getpod)
-
 	}
 
 	r.GET("/", services.V1welcome)
@@ -66,7 +68,7 @@ func main() {
 }
 
 func getpods(c *gin.Context) {
-	datas := clusterinfo.GetPodListInfo(csi.Clientset)
+	datas := clusterinfo.GetPodListInfo(c.Keys["clientset"].(*kubernetes.Clientset))
 	clusterinfo.SavePodInfoList(datas)
 	c.JSON(http.StatusOK, gin.H{
 		"datas": "Sending completed",
@@ -90,7 +92,7 @@ func getpod(c *gin.Context) {
 		log.Println(err)
 	}
 
-	datas := clusterinfo.GetPodInfo(csi.Clientset, rbodyi.Namespace, rbodyi.PodName)
+	datas := clusterinfo.GetPodInfo(c.Keys["clientset"].(*kubernetes.Clientset), rbodyi.Namespace, rbodyi.PodName)
 	// clusterinfo.SavePodInfo(datas)
 	loc, _ := time.LoadLocation("UTC")
 
