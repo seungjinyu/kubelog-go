@@ -25,3 +25,7 @@ and configure the service account to access the pods information
 env file is located in envs 
 
 in there you configure every environment variable but currently there are just a few.
+
+# AUTH 
+
+trying to use oidc to authenticate user and give permission about the resources.
