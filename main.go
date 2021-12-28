@@ -18,7 +18,7 @@ var csi clusterinfo.ClientSetInstance
 
 func main() {
 
-	fmt.Println("VERSION 1.1.0")
+	fmt.Println("VERSION 1.1.1")
 
 	err := godotenv.Load(".env")
 
