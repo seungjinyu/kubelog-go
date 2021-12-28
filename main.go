@@ -5,6 +5,8 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
+	"time"
 
 	"github.com/seungjinyu/kubelog-go/auth"
 	"github.com/seungjinyu/kubelog-go/clusterinfo"
@@ -48,12 +50,15 @@ func main() {
 	{
 		v1.GET("/v1welcome", services.V1welcome)
 		v1.POST("/getpods", getpods)
+		v1.POST("/getpod", getpod)
+
 	}
 
 	r.GET("/", services.V1welcome)
 	r.GET("/welcome", services.Welcome)
 	r.GET("/health", services.Healthy)
 	r.POST("/verifykeytest", auth.VerifyKey)
+	r.POST("/")
 
 	r.Run(":" + os.Getenv("PORT"))
 
@@ -65,4 +70,25 @@ func getpods(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"datas": "Sending completed",
 	})
+}
+
+func getpod(c *gin.Context) {
+
+	namespace := c.Query("namespace")
+	requestPodName := c.Query("podname")
+	datas := clusterinfo.GetPodInfo(csi.Clientset, namespace, requestPodName)
+	// clusterinfo.SavePodInfo(datas)
+	loc, _ := time.LoadLocation("UTC")
+
+	podlog := strings.Split(datas.PodLog, "\n")
+
+	c.JSON(http.StatusOK, gin.H{
+		"Current Time": time.Now(),
+		"UTC Time":     time.Now().In(loc),
+		"Pod Name":     datas.PodName,
+		"Pod Log":      podlog,
+	})
+
+	// c.Redirect(http.StatusMovedPermanently, "/results")
+
 }
