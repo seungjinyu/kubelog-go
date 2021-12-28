@@ -18,17 +18,16 @@ var csi clusterinfo.ClientSetInstance
 
 func main() {
 
-	fmt.Println("VERSION 1.0.2")
+	fmt.Println("VERSION 1.1.0")
 
 	err := godotenv.Load(".env")
 
 	if err != nil {
 		log.Println(err.Error())
 	}
+
 	appenv := os.Getenv("APP_ENV")
-
 	if appenv != "OUT" {
-
 		err = csi.CreateInClientSet()
 		if err != nil {
 			log.Println(err.Error())
