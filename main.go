@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -72,11 +73,21 @@ func getpods(c *gin.Context) {
 	})
 }
 
+type rbody struct {
+	Namespace string `json:"namespace"`
+	PodName   string `json:"podname"`
+}
+
 func getpod(c *gin.Context) {
 
-	namespace := c.Query("namespace")
-	requestPodName := c.Query("podname")
-	datas := clusterinfo.GetPodInfo(csi.Clientset, namespace, requestPodName)
+	var rbodyi rbody
+
+	err := json.NewDecoder(c.Request.Body).Decode(&rbodyi)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	datas := clusterinfo.GetPodInfo(csi.Clientset, rbodyi.Namespace, rbodyi.PodName)
 	// clusterinfo.SavePodInfo(datas)
 	loc, _ := time.LoadLocation("UTC")
 

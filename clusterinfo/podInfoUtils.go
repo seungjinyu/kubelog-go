@@ -16,6 +16,9 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
+var defaultNamespace = "default"
+var defaultPodname = "kubelog-go"
+
 func GetPodListInfo(clientset *kubernetes.Clientset) models.PodInfoList {
 
 	podlist := givePodList(clientset)
@@ -53,8 +56,12 @@ func givePodList(clientset *kubernetes.Clientset) []v1.Pod {
 func givePod(clientset *kubernetes.Clientset, namespace, requestPodName string) (v1.Pod, error) {
 
 	if namespace == "" {
-		namespace = "default"
+		namespace = defaultNamespace
 	}
+	if requestPodName == "" {
+		requestPodName = defaultPodname
+	}
+
 	pods, err := clientset.CoreV1().Pods(namespace).List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		panic(err)
