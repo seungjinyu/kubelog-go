@@ -1,13 +1,19 @@
 package auth
 
 import (
+	"encoding/json"
 	"fmt"
+	"net/http"
 	"reflect"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/seungjinyu/kubelog-go/services"
 )
+
+type active struct {
+	Active bool
+}
 
 func VerifyKey(c *gin.Context) {
 
@@ -27,9 +33,20 @@ func VerifyKey(c *gin.Context) {
 
 			data := services.IntrospectToken(token[1], authenticator)
 
-			fmt.Println(data)
-		}
+			bdata, _ := json.Marshal(data)
+			jsdata := active{}
+			json.Unmarshal(bdata, &jsdata)
+			if jsdata.Active {
+				c.JSON(http.StatusAccepted, gin.H{
+					"result": jsdata.Active,
+				})
+			} else {
+				c.JSON(http.StatusUnauthorized, gin.H{
+					"result": jsdata.Active,
+				})
+			}
 
+		}
 		// code is still on development
 	}
 

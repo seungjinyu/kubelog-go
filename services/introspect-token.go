@@ -2,22 +2,46 @@ package services
 
 import (
 	"fmt"
-	"net/url"
 	"os"
+
+	"github.com/google/go-querystring/query"
+	"github.com/monaco-io/request"
 )
 
-func IntrospectToken(token string, authenticator string) string {
+type customAuth struct {
+	Username string `url:"client_id"`
+	Password string `url:"client_secret"`
+	Token    string `url:"token"`
+}
 
-	// qo = getQuery(token)
+func IntrospectToken(token string, authenticator string) interface{} {
 
-	// still on development
+	ca := customAuth{
+		os.Getenv("AUTH_CLIENT_ID"),
+		os.Getenv("AUTH_CLIENT_SECRET"),
+		token,
+	}
+	v, _ := query.Values(ca)
 
-	values := url.Values{}
-	values.Add("client_id", os.Getenv("AUTH_CLIENT_ID"))
-	values.Add("client_secret", os.Getenv("AUTH_CLIENT_SECRET"))
-	values.Add("token", token)
-	query := values.Encode()
+	// fmt.Println("query: ", v)
+	// fmt.Println("query encode: ", v.Encode())
 
-	fmt.Print(query)
-	return ""
+	c := request.Client{
+		URL:    "https://" + authenticator + os.Getenv("TOKEN_PATH"),
+		Method: "POST",
+		Header: map[string]string{"Content-Type": "application/x-www-form-urlencoded"},
+		// CustomerAuth: v.Encode(),
+		String: v.Encode(),
+		// Query: map[string]string{
+		// 	"client_id":     os.Getenv("AUTH_CLIENT_ID"),
+		// 	"client_secret": os.Getenv("AUTH_CLIENT_SECRET"),
+		// 	"token":         token,
+		// },
+	}
+	// fmt.Println(c.String)
+	resp := c.Send()
+
+	fmt.Println("resp", resp)
+
+	return resp
 }
