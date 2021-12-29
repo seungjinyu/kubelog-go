@@ -30,6 +30,7 @@ func VerifyKey(c *gin.Context) {
 			fmt.Println(data)
 		}
 
+		// code is still on development
 	}
 
 }
