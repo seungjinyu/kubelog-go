@@ -9,6 +9,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/seungjinyu/kubelog-go/clusterinfo"
+
 	"k8s.io/client-go/kubernetes"
 )
 
@@ -38,33 +39,50 @@ func V1welcome(c *gin.Context) {
 	})
 }
 
-func Getpod(c *gin.Context) {
-
+func runByGor(c *gin.Context, ch chan []string, ch2 chan string, clientSet *kubernetes.Clientset) {
 	var rbodyi rbody
 	body := c.Request.Body
-
 	err := json.NewDecoder(body).Decode(&rbodyi)
 	defer body.Close()
-
 	if err != nil {
 		log.Println(err)
 	}
 
 	datas := clusterinfo.GetPodInfo(c.Keys["clientset"].(*kubernetes.Clientset), rbodyi.Namespace, rbodyi.PodName)
-	// clusterinfo.SavePodInfo(datas)
-	loc, _ := time.LoadLocation("UTC")
-
 	podlog := strings.Split(datas.PodLog, "\n")
+	podsName := datas.PodName
+
+	ch <- podlog
+	ch2 <- podsName
+
+}
+
+func Sleep(c *gin.Context) {
+	time.Sleep(10000000000)
+	c.JSON(200, gin.H{
+		"result": "nice sleep",
+	})
+}
+
+func Getpod(c *gin.Context) {
+
+	ch := make(chan []string)
+	ch2 := make(chan string)
+	defer close(ch)
+	defer close(ch2)
+
+	go runByGor(c, ch, ch2, c.Keys["clientset"].(*kubernetes.Clientset))
+	// clusterinfo.SavePodInfo(datas)
+
+	loc, _ := time.LoadLocation("UTC")
 
 	c.JSON(http.StatusOK, gin.H{
 		"Current Time": time.Now(),
 		"UTC Time":     time.Now().In(loc),
-		"Pod Name":     datas.PodName,
-		"Pod Log":      podlog,
+		"Pod Name":     <-ch,
+		"Pod Log":      <-ch2,
 	})
-
 	// c.Redirect(http.StatusMovedPermanently, "/results")
-
 }
 
 func Getpods(c *gin.Context) {

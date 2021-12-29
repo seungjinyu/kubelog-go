@@ -14,6 +14,9 @@ import (
 )
 
 func main() {
+
+	// runtime.GOMAXPROCS(1)
+
 	fmt.Println("VERSION 1.1.1")
 
 	var csi clusterinfo.ClientSetInstance
@@ -41,24 +44,29 @@ func main() {
 	r := gin.Default()
 
 	r.GET("/health", services.Healthy)
+	r.Use(middleware.ClientSet(csi.Clientset))
 
-	basicService := r.Group("v1")
-	basicService.Use(middleware.ClientSet(csi.Clientset))
+	basicService := r.Group("basic")
 	basicService.Use(middleware.AuthenticationForBasic)
 	{
 		basicService.GET("/", services.RedirectToWelcome)
 		basicService.GET("/welcome", services.V1welcome)
 	}
 
-	getpodService := r.Group("v2")
+	getpodService := r.Group("podservice")
 	getpodService.Use(middleware.AuthenticationForPod)
 	{
 		getpodService.POST("/getpods", services.Getpods)
 		getpodService.POST("/getpod", services.Getpod)
 	}
 
-	// r.POST("/verifykeytest", auth.VerifyKey)
+	testpodservice := r.Group("test")
+	testpodservice.POST("/getpods", services.Getpods)
+	testpodservice.POST("/getpod", services.Getpod)
+	testpodservice.GET("/sleep", services.Sleep)
 
 	r.Run(":" + os.Getenv("PORT"))
+
+	// http.ListenAndServe(":8080", r)
 
 }
