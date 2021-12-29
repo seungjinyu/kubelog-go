@@ -51,7 +51,6 @@ func main() {
 	}
 
 	getpodService := r.Group("v2")
-
 	getpodService.Use(middleware.AuthenticationForPod)
 	{
 		getpodService.POST("/getpods", services.Getpods)

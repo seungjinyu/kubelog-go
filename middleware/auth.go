@@ -56,7 +56,7 @@ func AuthenticationForPod(c *gin.Context) {
 
 		token := strings.Split(authorization, "Bearer ")
 
-		if token != nil {
+		if len(token) == 2 {
 			fmt.Println("Introspecting Token")
 
 			data := services.IntrospectToken(token[1], authenticator)
@@ -80,6 +80,12 @@ func AuthenticationForPod(c *gin.Context) {
 				return
 			}
 
+		} else {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"result": "Token is nil",
+			})
+			c.Abort()
+			return
 		}
 		// code is still on development
 	}
