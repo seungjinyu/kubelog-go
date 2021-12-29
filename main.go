@@ -5,7 +5,6 @@ import (
 	"log"
 	"os"
 
-	"github.com/seungjinyu/kubelog-go/auth"
 	"github.com/seungjinyu/kubelog-go/clusterinfo"
 	"github.com/seungjinyu/kubelog-go/middleware"
 	"github.com/seungjinyu/kubelog-go/services"
@@ -14,11 +13,10 @@ import (
 	"github.com/joho/godotenv"
 )
 
-var csi clusterinfo.ClientSetInstance
-
 func main() {
-
 	fmt.Println("VERSION 1.1.1")
+
+	var csi clusterinfo.ClientSetInstance
 
 	err := godotenv.Load(".env")
 
@@ -42,20 +40,25 @@ func main() {
 
 	r := gin.Default()
 
-	v1 := r.Group("v1")
-	v1.Use(middleware.ClientSet(csi.Clientset))
-	v1.Use(middleware.Authenticate)
+	r.GET("/health", services.Healthy)
+
+	basicService := r.Group("v1")
+	basicService.Use(middleware.ClientSet(csi.Clientset))
+	basicService.Use(middleware.AuthenticationForBasic)
 	{
-		v1.GET("/v1welcome", services.V1welcome)
-		v1.POST("/getpods", services.Getpods)
-		v1.POST("/getpod", services.Getpod)
+		basicService.GET("/", services.RedirectToWelcome)
+		basicService.GET("/welcome", services.V1welcome)
 	}
 
-	r.GET("/", services.V1welcome)
-	r.GET("/welcome", services.Welcome)
-	r.GET("/health", services.Healthy)
-	r.POST("/verifykeytest", auth.VerifyKey)
-	r.POST("/")
+	getpodService := r.Group("v2")
+
+	getpodService.Use(middleware.AuthenticationForPod)
+	{
+		getpodService.POST("/getpods", services.Getpods)
+		getpodService.POST("/getpod", services.Getpod)
+	}
+
+	// r.POST("/verifykeytest", auth.VerifyKey)
 
 	r.Run(":" + os.Getenv("PORT"))
 
