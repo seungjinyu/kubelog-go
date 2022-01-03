@@ -6,7 +6,7 @@ Only for developers who want to see the pods logs without credentials
 
 Developed for application developers.
 
-## HOW TO USE IT
+## [1] HOW TO USE IT
 
 It`s simple, just choose the environment you are planning to use and configure the env file
 
@@ -20,12 +20,12 @@ build the image by dockerfile.in
 
 and configure the service account to access the pods information
 
-## ENV files 
+## [2] ENV files 
 
 env file is located in envs 
 
 in there you configure every environment variable but currently there are just a few.
 
-## AUTH 
+## [3] AUTH 
 
 trying to use oidc to authenticate user and give permission about the resources.
